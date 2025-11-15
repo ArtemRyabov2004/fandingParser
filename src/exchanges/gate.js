@@ -4,6 +4,7 @@ import axios from 'axios';
 export class GateExchange extends ExchangeBase {
   constructor(config) {
     super('Gate.io', config);
+    this.fundingIntervalHours = 8; // Gate.io каждые 8 часов
   }
 
   async fetchFundingRates() {
@@ -14,10 +15,15 @@ export class GateExchange extends ExchangeBase {
       response.data.forEach(contract => {
         if (contract.name && contract.name.includes('USDT') && contract.funding_rate) {
           const symbol = this.normalizeSymbol(contract.name);
+          const rawRate = parseFloat(contract.funding_rate);
+          const hourlyRate = this.calculateHourlyRate(rawRate);
+          
           rates[symbol] = {
-            rate: parseFloat(contract.funding_rate),
-            nextFundingTime: Math.floor(Date.now() / 1000) + 8 * 3600, // Gate не предоставляет время
-            annualizedRate: this.calculateAnnualizedRate(parseFloat(contract.funding_rate))
+            rawRate: rawRate,
+            rate: hourlyRate,
+            intervalHours: this.fundingIntervalHours,
+            nextFundingTime: Math.floor(Date.now() / 1000) + 8 * 3600,
+            annualizedRate: this.calculateAnnualizedRate(rawRate)
           };
         }
       });

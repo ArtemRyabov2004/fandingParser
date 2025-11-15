@@ -4,6 +4,7 @@ import axios from 'axios';
 export class BybitExchange extends ExchangeBase {
   constructor(config) {
     super('Bybit', config);
+    this.fundingIntervalHours = 8; // Bybit каждые 8 часов
   }
 
   async fetchFundingRates() {
@@ -20,10 +21,15 @@ export class BybitExchange extends ExchangeBase {
         response.data.result.list.forEach(item => {
           if (item.symbol && item.symbol.includes('USDT') && item.fundingRate) {
             const symbol = this.normalizeSymbol(item.symbol);
+            const rawRate = parseFloat(item.fundingRate);
+            const hourlyRate = this.calculateHourlyRate(rawRate);
+            
             rates[symbol] = {
-              rate: parseFloat(item.fundingRate),
+              rawRate: rawRate,
+              rate: hourlyRate,
+              intervalHours: this.fundingIntervalHours,
               nextFundingTime: parseInt(item.nextFundingTime),
-              annualizedRate: this.calculateAnnualizedRate(parseFloat(item.fundingRate))
+              annualizedRate: this.calculateAnnualizedRate(rawRate)
             };
           }
         });

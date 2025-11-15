@@ -1,32 +1,38 @@
-import { config } from '../config.js';  // ✅ правильный импорт
+import { config } from '../config.js';
 
 export class NotificationService {
   constructor() {
     this.telegramBot = null;
-    if (config.notifications.telegram.enabled) {
-      console.log('Telegram notifications enabled');
-    }
   }
 
   async sendNotification(message, opportunities = []) {
-    // Консольное уведомление
     if (config.notifications.console.enabled) {
       console.log('🔔 Funding Rate Arbitrage Alert:', message);
+      
+      if (opportunities.length === 0) {
+        console.log('⏳ No opportunities found');
+        return;
+      }
+
       opportunities.forEach(opp => {
-        console.log(`📊 ${opp.symbol}: ${opp.diffPercentage}% difference`);
+        console.log(`📊 ${opp.symbol}: ${opp.hourlyDiff} hourly difference`);
+        
         opp.rates.forEach(r => {
-          console.log(`   ${r.exchange}: ${r.rate}% (${r.annualized}% annualized)`);
+          console.log(`   ${r.exchange}: ${r.hourlyRate} (raw: ${r.rawRate} per ${r.interval})`);
         });
+        
+        console.log(`   📈 Best LONG: ${opp.bestLong}`);
+        console.log(`   📉 Best SHORT: ${opp.bestShort}`);
+        console.log('   ─────────────────────────');
       });
     }
 
-    // Telegram уведомление
     if (config.notifications.telegram.enabled) {
       await this.sendTelegramNotification(message, opportunities);
     }
   }
 
   async sendTelegramNotification(message, opportunities) {
-    console.log('📱 Telegram notification would be sent:', message);
+    console.log('📱 Telegram:', message);
   }
 }

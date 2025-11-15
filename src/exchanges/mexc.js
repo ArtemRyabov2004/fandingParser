@@ -4,17 +4,15 @@ import axios from 'axios';
 export class MEXCExchange extends ExchangeBase {
   constructor(config) {
     super('MEXC', config);
+    this.fundingIntervalHours = 8; // MEXC каждые 8 часов
   }
 
   async fetchFundingRates() {
     try {
-      const response = await axios.get(`${this.config.apiBase}/api/v1/contract/funding_rate/BTC_USDT`);
       const rates = {};
-      
-      // Для MEXC получаем список всех символов
       const symbols = await this.getSymbols();
       
-      for (const symbol of symbols.slice(0, 10)) { // Ограничим для теста
+      for (const symbol of symbols.slice(0, 20)) { // Увеличим лимит
         try {
           const symbolResponse = await axios.get(
             `${this.config.apiBase}/api/v1/contract/funding_rate/${symbol}`
@@ -23,10 +21,15 @@ export class MEXCExchange extends ExchangeBase {
           if (symbolResponse.data && symbolResponse.data.data) {
             const data = symbolResponse.data.data;
             const normalizedSymbol = this.normalizeSymbol(symbol);
+            const rawRate = parseFloat(data.fundingRate);
+            const hourlyRate = this.calculateHourlyRate(rawRate);
+            
             rates[normalizedSymbol] = {
-              rate: parseFloat(data.fundingRate),
+              rawRate: rawRate,
+              rate: hourlyRate,
+              intervalHours: this.fundingIntervalHours,
               nextFundingTime: data.collectTime,
-              annualizedRate: this.calculateAnnualizedRate(parseFloat(data.fundingRate))
+              annualizedRate: this.calculateAnnualizedRate(rawRate)
             };
           }
         } catch (error) {
@@ -49,8 +52,7 @@ export class MEXCExchange extends ExchangeBase {
         .filter(contract => contract.symbol.endsWith('USDT'))
         .map(contract => contract.symbol);
     } catch (error) {
-      // Fallback symbols
-      return ['BTC_USDT', 'ETH_USDT', 'ADA_USDT', 'DOT_USDT', 'LINK_USDT'];
+      return ['BTC_USDT', 'ETH_USDT', 'ADA_USDT', 'DOT_USDT', 'LINK_USDT', 'SOL_USDT', 'MATIC_USDT'];
     }
   }
 }

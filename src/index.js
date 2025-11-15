@@ -13,7 +13,7 @@ class FundingRateMonitor {
   constructor() {
     this.setupExchanges();
     this.fundingService = new FundingService(this.exchanges);
-    this.arbitrageService = new ArbitrageService(config.threshold);
+    this.arbitrageService = new ArbitrageService(config.hourlyThreshold);
     this.notificationService = new NotificationService();
   }
 

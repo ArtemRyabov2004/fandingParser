@@ -4,6 +4,7 @@ import axios from 'axios';
 export class BinanceExchange extends ExchangeBase {
   constructor(config) {
     super('Binance', config);
+    this.fundingIntervalHours = 8; // Binance каждые 8 часов
   }
 
   async fetchFundingRates() {
@@ -14,10 +15,15 @@ export class BinanceExchange extends ExchangeBase {
       response.data.forEach(item => {
         if (item.symbol.includes('USDT')) {
           const symbol = this.normalizeSymbol(item.symbol);
+          const rawRate = parseFloat(item.lastFundingRate);
+          const hourlyRate = this.calculateHourlyRate(rawRate);
+          
           rates[symbol] = {
-            rate: parseFloat(item.lastFundingRate),
+            rawRate: rawRate, // оригинальная ставка
+            rate: hourlyRate, // нормализованная часовая ставка
+            intervalHours: this.fundingIntervalHours,
             nextFundingTime: item.nextFundingTime,
-            annualizedRate: this.calculateAnnualizedRate(parseFloat(item.lastFundingRate))
+            annualizedRate: this.calculateAnnualizedRate(rawRate)
           };
         }
       });
