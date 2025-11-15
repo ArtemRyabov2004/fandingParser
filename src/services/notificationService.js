@@ -1,10 +1,9 @@
-import config from '../../index.js';
+import { config } from '../config.js';  // ✅ правильный импорт
 
 export class NotificationService {
   constructor() {
     this.telegramBot = null;
     if (config.notifications.telegram.enabled) {
-      // Инициализация Telegram бота будет позже
       console.log('Telegram notifications enabled');
     }
   }
@@ -21,14 +20,13 @@ export class NotificationService {
       });
     }
 
-    // Telegram уведомление (упрощенная версия)
+    // Telegram уведомление
     if (config.notifications.telegram.enabled) {
       await this.sendTelegramNotification(message, opportunities);
     }
   }
 
   async sendTelegramNotification(message, opportunities) {
-    // Заглушка для Telegram - реализуем позже
     console.log('📱 Telegram notification would be sent:', message);
   }
 }

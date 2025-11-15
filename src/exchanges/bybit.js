@@ -8,21 +8,30 @@ export class BybitExchange extends ExchangeBase {
 
   async fetchFundingRates() {
     try {
-      const response = await axios.get(`${this.config.apiBase}/v2/public/tickers`);
-      const rates = {};
-      
-      response.data.result.forEach(item => {
-        if (item.symbol.includes('USDT') && item.funding_rate) {
-          const symbol = this.normalizeSymbol(item.symbol);
-          rates[symbol] = {
-            rate: parseFloat(item.funding_rate),
-            nextFundingTime: item.next_funding_time,
-            annualizedRate: this.calculateAnnualizedRate(parseFloat(item.funding_rate))
-          };
+      // Используем правильный endpoint для funding rates
+      const response = await axios.get(`${this.config.apiBase}/v5/market/tickers`, {
+        params: {
+          category: 'linear'
         }
       });
       
+      const rates = {};
+      
+      if (response.data && response.data.result && response.data.result.list) {
+        response.data.result.list.forEach(item => {
+          if (item.symbol && item.symbol.includes('USDT') && item.fundingRate) {
+            const symbol = this.normalizeSymbol(item.symbol);
+            rates[symbol] = {
+              rate: parseFloat(item.fundingRate),
+              nextFundingTime: parseInt(item.nextFundingTime),
+              annualizedRate: this.calculateAnnualizedRate(parseFloat(item.fundingRate))
+            };
+          }
+        });
+      }
+      
       this.fundingRates = new Map(Object.entries(rates));
+      console.log(`✅ Bybit: loaded ${Object.keys(rates).length} funding rates`);
       return rates;
     } catch (error) {
       this.logError(error);

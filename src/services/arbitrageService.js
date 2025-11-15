@@ -4,8 +4,12 @@ export class ArbitrageService {
   }
 
   findArbitrageOpportunities(fundingRates) {
+    console.log('🔍 Analyzing arbitrage opportunities...');
+    
     const opportunities = [];
     const commonSymbols = this.getCommonSymbols(fundingRates);
+
+    console.log(`📊 Found ${commonSymbols.length} common symbols across exchanges`);
 
     commonSymbols.forEach(({ symbol, exchanges }) => {
       const rates = [];
@@ -25,7 +29,7 @@ export class ArbitrageService {
         rates.sort((a, b) => a.rate - b.rate);
         
         const maxDiff = rates[rates.length - 1].rate - rates[0].rate;
-        const diffPercentage = (maxDiff / Math.abs(rates[0].rate)) * 100;
+        const diffPercentage = (maxDiff / Math.abs(rates[0].rate || 1)) * 100;
 
         if (Math.abs(diffPercentage) >= this.threshold) {
           opportunities.push({
@@ -36,13 +40,14 @@ export class ArbitrageService {
               rate: parseFloat((r.rate * 100).toFixed(6)),
               annualized: parseFloat((r.annualized * 100).toFixed(4))
             })),
-            bestLong: rates[0], // Самая низкая ставка - лучше для long
-            bestShort: rates[rates.length - 1] // Самая высокая ставка - лучше для short
+            bestLong: rates[0],
+            bestShort: rates[rates.length - 1]
           });
         }
       }
     });
 
+    console.log(`🎯 Found ${opportunities.length} arbitrage opportunities`);
     return opportunities.sort((a, b) => Math.abs(b.diffPercentage) - Math.abs(a.diffPercentage));
   }
 

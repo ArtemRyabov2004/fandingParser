@@ -1,12 +1,12 @@
 import { BinanceExchange } from './exchanges/binance.js';
 import { BybitExchange } from './exchanges/bybit.js';
-import { MEXCExchange } from './src/exchanges/mexc.js';
-import { GateExchange } from './src/exchanges/gate.js';
-import { HyperliquidExchange } from './src/exchanges/hyperliquid.js';
+import { MEXCExchange } from './exchanges/mexc.js';
+import { GateExchange } from './exchanges/gate.js';
+import { HyperliquidExchange } from './exchanges/hyperliquid.js';
 import { FundingService } from './services/fundingService.js';
-import { ArbitrageService } from './src/services/arbitrageService.js';
-import { NotificationService } from './src/services/notificationService.js';
-import config from './index.js';
+import { ArbitrageService } from './services/arbitrageService.js';
+import { NotificationService } from './services/notificationService.js';
+import { config } from './config.js';  // ✅ правильный импорт
 import cron from 'node-cron';
 
 class FundingRateMonitor {
