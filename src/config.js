@@ -2,27 +2,27 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const config = {
-  updateInterval: 60,
-  threshold: 0.05,
+  updateInterval: 300, // 5 минут для production
+  threshold: 0.01, // 1% разница
   exchanges: {
     binance: {
       enabled: true,
       apiBase: 'https://fapi.binance.com'
     },
     bybit: {
-      enabled: false,  // временно отключим
+      enabled: true,
       apiBase: 'https://api.bybit.com'
     },
     mexc: {
-      enabled: false,
+      enabled: true,
       apiBase: 'https://contract.mexc.com'
     },
     gate: {
-      enabled: false,
+      enabled: true,
       apiBase: 'https://api.gateio.ws'
     },
     hyperliquid: {
-      enabled: false,
+      enabled: true,
       apiBase: 'https://api.hyperliquid.xyz'
     }
   },

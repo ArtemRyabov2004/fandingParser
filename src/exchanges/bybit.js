@@ -8,7 +8,6 @@ export class BybitExchange extends ExchangeBase {
 
   async fetchFundingRates() {
     try {
-      // Используем правильный endpoint для funding rates
       const response = await axios.get(`${this.config.apiBase}/v5/market/tickers`, {
         params: {
           category: 'linear'
@@ -31,7 +30,6 @@ export class BybitExchange extends ExchangeBase {
       }
       
       this.fundingRates = new Map(Object.entries(rates));
-      console.log(`✅ Bybit: loaded ${Object.keys(rates).length} funding rates`);
       return rates;
     } catch (error) {
       this.logError(error);

@@ -16,11 +16,11 @@ export class HyperliquidExchange extends ExchangeBase {
       
       if (response.data && Array.isArray(response.data)) {
         response.data.forEach(item => {
-          if (item.coin && item.fundingRate) {
+          if (item.coin && item.fundingRate !== undefined) {
             const symbol = this.normalizeSymbol(`${item.coin}USDT`);
             rates[symbol] = {
               rate: parseFloat(item.fundingRate),
-              nextFundingTime: Date.now() + 3600000, // Hyperliquid funding каждый час
+              nextFundingTime: Date.now() + 3600000, // Каждый час
               annualizedRate: this.calculateAnnualizedRate(parseFloat(item.fundingRate), 1)
             };
           }

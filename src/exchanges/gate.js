@@ -12,11 +12,11 @@ export class GateExchange extends ExchangeBase {
       const rates = {};
       
       response.data.forEach(contract => {
-        if (contract.name.includes('USDT')) {
+        if (contract.name && contract.name.includes('USDT') && contract.funding_rate) {
           const symbol = this.normalizeSymbol(contract.name);
           rates[symbol] = {
             rate: parseFloat(contract.funding_rate),
-            nextFundingTime: contract.funding_next_apply,
+            nextFundingTime: Math.floor(Date.now() / 1000) + 8 * 3600, // Gate не предоставляет время
             annualizedRate: this.calculateAnnualizedRate(parseFloat(contract.funding_rate))
           };
         }

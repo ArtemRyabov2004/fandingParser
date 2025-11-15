@@ -11,26 +11,26 @@ export class MEXCExchange extends ExchangeBase {
       const response = await axios.get(`${this.config.apiBase}/api/v1/contract/funding_rate/BTC_USDT`);
       const rates = {};
       
-      // MEXC API может возвращать один символ, нужно получить все
-      const allSymbols = await this.getAllSymbols();
+      // Для MEXC получаем список всех символов
+      const symbols = await this.getSymbols();
       
-      for (const symbol of allSymbols) {
+      for (const symbol of symbols.slice(0, 10)) { // Ограничим для теста
         try {
           const symbolResponse = await axios.get(
             `${this.config.apiBase}/api/v1/contract/funding_rate/${symbol}`
           );
-          const data = symbolResponse.data;
           
-          if (data && data.fundingRate) {
+          if (symbolResponse.data && symbolResponse.data.data) {
+            const data = symbolResponse.data.data;
             const normalizedSymbol = this.normalizeSymbol(symbol);
             rates[normalizedSymbol] = {
               rate: parseFloat(data.fundingRate),
-              nextFundingTime: data.fundingTime,
+              nextFundingTime: data.collectTime,
               annualizedRate: this.calculateAnnualizedRate(parseFloat(data.fundingRate))
             };
           }
         } catch (error) {
-          console.log(`MEXC: Error fetching ${symbol}`, error.message);
+          // Пропускаем ошибки для отдельных символов
         }
       }
       
@@ -42,14 +42,15 @@ export class MEXCExchange extends ExchangeBase {
     }
   }
 
-  async getAllSymbols() {
+  async getSymbols() {
     try {
       const response = await axios.get(`${this.config.apiBase}/api/v1/contract/detail`);
       return response.data.data
-        .filter(contract => contract.symbol.includes('USDT'))
+        .filter(contract => contract.symbol.endsWith('USDT'))
         .map(contract => contract.symbol);
     } catch (error) {
-      return ['BTC_USDT', 'ETH_USDT']; // Fallback
+      // Fallback symbols
+      return ['BTC_USDT', 'ETH_USDT', 'ADA_USDT', 'DOT_USDT', 'LINK_USDT'];
     }
   }
 }
