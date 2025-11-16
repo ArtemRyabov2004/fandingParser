@@ -21,8 +21,8 @@ export class NotificationService {
           console.log(`   ${r.exchange}: ${r.hourlyRate} (raw: ${r.rawRate} per ${r.interval})`);
         });
         
-        console.log(`   📈 Best LONG: ${opp.bestLong}`);
-        console.log(`   📉 Best SHORT: ${opp.bestShort}`);
+       console.log(`   📈 Best LONG: ${opp.bestLong.exchange || opp.bestLong}`);
+       console.log(`   📉 Best SHORT: ${opp.bestShort.exchange || opp.bestShort}`);
         console.log('   ─────────────────────────');
       });
     }

@@ -12,6 +12,7 @@ export class ExchangeBase {
     throw new Error('Method not implemented');
   }
 
+
   normalizeSymbol(symbol) {
     return symbol.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
   }
